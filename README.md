@@ -1,14 +1,14 @@
-# AI Knowledge Skills
+# Legal AI
 
-AI skills, knowledge-base workflows, and agent-ready sharing bundles maintained by `leo123-tto`.
+Legal AI workflows, knowledge-base tools, agent skills, and reusable sharing packs maintained by `leo123-tto`.
 
-This repository is intentionally separate from `legal-tools`, which is a static website project. Use this repository for reusable AI workflows, local knowledge-base skills, and materials that colleagues can download and install.
+This repository is intentionally separate from `legal-tools`, which is a static website project. Use this repository for AI-related legal workflows, local knowledge-base projects, agent skills, prompt packs, and materials that colleagues can download and install.
 
-## Current Bundles
+## Current Projects
 
 ### `legal-kb-yuandian-bundle`
 
-Path: `bundles/legal-kb-yuandian-bundle/`
+Path: `legal-kb-yuandian-bundle/`
 
 An agent-ready bundle for building and sharing a local legal knowledge base.
 
@@ -22,7 +22,7 @@ It includes:
 Start here:
 
 ```bash
-cd bundles/legal-kb-yuandian-bundle
+cd legal-kb-yuandian-bundle
 bash install.sh
 bash verify.sh
 ```
@@ -30,7 +30,7 @@ bash verify.sh
 For a non-technical overview, read:
 
 ```text
-bundles/legal-kb-yuandian-bundle/HUMAN-GUIDE.md
+legal-kb-yuandian-bundle/HUMAN-GUIDE.md
 ```
 
 ## API Keys
@@ -48,15 +48,14 @@ Recognized environment variables include:
 ## Repository Layout
 
 ```text
-ai-knowledge-skills/
-├── bundles/
-│   └── legal-kb-yuandian-bundle/
-│       ├── skills/
-│       ├── scripts/
-│       ├── README.md
-│       ├── HUMAN-GUIDE.md
-│       ├── AGENT-ONBOARDING.md
-│       └── TEAM-SHARING.md
+legal-ai/
+├── legal-kb-yuandian-bundle/
+│   ├── skills/
+│   ├── scripts/
+│   ├── README.md
+│   ├── HUMAN-GUIDE.md
+│   ├── AGENT-ONBOARDING.md
+│   └── TEAM-SHARING.md
 ├── LICENSE
 └── README.md
 ```
