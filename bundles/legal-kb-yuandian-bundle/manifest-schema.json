@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Team Knowledge Pack Manifest",
+  "type": "object",
+  "required": ["format_version", "exported_at", "kb_root", "items"],
+  "properties": {
+    "format_version": {"type": "string"},
+    "exported_at": {"type": "string"},
+    "kb_root": {"type": "string"},
+    "source_agent": {"type": "string"},
+    "notes": {"type": "string"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "relative_path", "sha256"],
+        "properties": {
+          "kind": {"type": "string", "enum": ["raw", "source", "topic", "report", "other"]},
+          "relative_path": {"type": "string"},
+          "sha256": {"type": "string"},
+          "title": {"type": "string"},
+          "origin_url": {"type": "string"},
+          "tags": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}
