@@ -1,25 +1,25 @@
 # Legal AI
 
-Legal AI workflows, knowledge-base tools, agent skills, and reusable sharing packs maintained by `leo123-tto`.
+这是一个用于分享法律 AI 相关项目的仓库。
 
-This repository is intentionally separate from `legal-tools`, which is a static website project. Use this repository for AI-related legal workflows, local knowledge-base projects, agent skills, prompt packs, and materials that colleagues can download and install.
+它和 `legal-tools` 分开维护：`legal-tools` 是静态网页工具集合；这个仓库专门放 AI 工作流、本地知识库项目、agent 技能、提示词包、共享脚本，以及以后可以给同事下载使用的法律 AI 资料。
 
-## Current Projects
+## 当前项目
 
 ### `legal-kb-yuandian-bundle`
 
-Path: `legal-kb-yuandian-bundle/`
+路径：`legal-kb-yuandian-bundle/`
 
-An agent-ready bundle for building and sharing a local legal knowledge base.
+这是一个给 agent 使用的本地法律知识库增强包，用于建立、维护、导入、导出和共享法律知识库材料。
 
-It includes:
+它包含：
 
-- `legal-kb`: the main local legal knowledge-base skill
-- `yuandian-legal-search`: Yuandian legal search and ingestion support
-- shared ZIP import/export scripts with manifest-based duplicate checks
-- human-facing and agent-facing onboarding docs
+- `legal-kb`：本地法律知识库主技能
+- `yuandian-legal-search`：元典法规、案例、企业信息检索与入库支持
+- 共享 ZIP 导入导出脚本，带 manifest 和导入前查重
+- 给同事看的简明说明，以及给 agent 看的安装/执行说明
 
-Start here:
+快速开始：
 
 ```bash
 cd legal-kb-yuandian-bundle
@@ -27,17 +27,17 @@ bash install.sh
 bash verify.sh
 ```
 
-For a non-technical overview, read:
+给同事看的简明说明：
 
 ```text
 legal-kb-yuandian-bundle/HUMAN-GUIDE.md
 ```
 
-## API Keys
+## API 配置
 
-Yuandian and Firecrawl integrations require your own API keys. This repository does not include keys or credentials.
+元典和 Firecrawl 功能需要使用者自行申请并配置 API。仓库里不包含任何密钥或凭据。
 
-Recognized environment variables include:
+可识别的环境变量包括：
 
 - `YUANDIAN_API_KEY`
 - `YUANDIAN_API`
@@ -45,7 +45,7 @@ Recognized environment variables include:
 - `FIRECRAWL_API_KEY`
 - `FIRECRAWL_KEY`
 
-## Repository Layout
+## 仓库结构
 
 ```text
 legal-ai/
@@ -60,6 +60,6 @@ legal-ai/
 └── README.md
 ```
 
-## Notes
+## 使用提示
 
-These materials are workflow and automation aids. They are not legal advice, and users should verify all legal content, sources, and API outputs before relying on them.
+这个仓库里的内容是工作流、自动化和知识库辅助材料，不是法律意见。使用元典、知识库材料或 agent 生成内容时，请自行核对来源、事实和法律依据。
