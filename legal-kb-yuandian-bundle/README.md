@@ -36,6 +36,8 @@
 如果想启用 Firecrawl 备用抓取，也必须自行申请和配置 API。
 没有就直说，不要装懂。
 
+已知 URL、公众号文章和网页正文抓取统一走 `legal-kb`，需要备用抓取时再走 Firecrawl。
+
 ---
 
 ## 团队共享能力
@@ -70,6 +72,8 @@ bash verify.sh
 ```text
 加载 legal-kb 技能，把这个微信公众号文章链接完整抓取并入库：<文章链接>
 ```
+
+执行口径：先走 `ingest-url` 直抓；直抓失败、正文过短或遇到微信验证页时，再用 Firecrawl 备用路径。
 
 ### 本地 md / Word / PDF 入库
 ```text
@@ -119,6 +123,7 @@ bash verify.sh
 agent 在处理本地文件入库、共享 zip 导入导出时，应优先调用这个 helper，而不是现场临时拼命令。
 
 常用命令包括：
+- `ingest-url`：公众号文章或已知网页 URL 入库；主路径直抓，备用路径 Firecrawl
 - `search-kb`：搜索本地知识库
 - `raw-to-source`：把已有 raw 文件生成 source 框架
 - `audit-sources`：巡检 source 缺段、原文位置坏链、占位摘要和 raw 映射数

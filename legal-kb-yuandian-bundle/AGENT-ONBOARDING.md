@@ -15,6 +15,7 @@
    - 元典 API key
    - Firecrawl API（若打算启用公众号备用抓取）
 6. 确认 `legal-kb` 已支持：
+   - 公众号 / 已知网页 URL 入库：主路径 `ingest-url` 直抓，备用路径 Firecrawl
    - 搜索本地知识库
    - 将已有 raw 转成 source
    - 巡检 source 页结构、原文位置和占位摘要
@@ -30,6 +31,7 @@
 ## 你必须明确反馈的结论
 - 默认知识库路径：`~/Documents/知识库`
 - 主技能：`legal-kb`
+- 公众号链接入库：先用 `kb_ingest_helper.py ingest-url`，直抓失败再用 Firecrawl 备用路径
 - 本地搜索：用 `kb_ingest_helper.py search-kb`
 - raw 转 source：用 `kb_ingest_helper.py raw-to-source`
 - source 体检：用 `kb_ingest_helper.py audit-sources`

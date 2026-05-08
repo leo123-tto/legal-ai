@@ -31,3 +31,4 @@ echo "READY COMMAND 4: 加载 legal-kb 技能，体检一下 source 层，告诉
 echo "READY COMMAND 5: 加载 legal-kb 技能，把这个 raw 文件整理成 source，并说明是否达到 L3。"
 echo "READY COMMAND 6: 加载 legal-kb 技能，把这个共享 zip 导入知识库，先查重，再告诉我导入了多少、跳过了多少。"
 echo "READY COMMAND 7: 加载 legal-kb 技能和 yuandian-legal-search 技能，帮我从元典获取《公司法》全文并入库到本地知识库。"
+echo "NOTE: 公众号备用抓取只使用 Firecrawl。"

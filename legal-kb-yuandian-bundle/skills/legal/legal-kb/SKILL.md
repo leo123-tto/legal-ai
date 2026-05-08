@@ -1,11 +1,11 @@
 ---
 name: legal-kb
-description: Build, search, maintain, import, export, and deduplicate a local Chinese legal knowledge base under ~/Documents/知识库; ingest markdown, text, Word, and text-extractable PDF files; create raw/source pairs; turn existing raw notes into source pages; maintain source pages to L3 reusable quality; and exchange knowledge-base fragments through manifest-based ZIP packs.
+description: Build, search, maintain, import, export, and deduplicate a local Chinese legal knowledge base under ~/Documents/知识库; ingest WeChat public-account article URLs, webpages, markdown, text, Word, and text-extractable PDF files; create raw/source pairs; turn existing raw notes into source pages; maintain source pages to L3 reusable quality; and exchange knowledge-base fragments through manifest-based ZIP packs.
 ---
 
 # Legal KB
 
-Use this skill when the user wants to search or maintain a local legal knowledge base, ingest legal materials, create raw/source records, turn raw notes into source pages, improve a source page to L3 reusable quality, export materials for colleagues, or import a shared knowledge-base ZIP.
+Use this skill when the user wants to search or maintain a local legal knowledge base, ingest legal materials or WeChat public-account article URLs, create raw/source records, turn raw notes into source pages, improve a source page to L3 reusable quality, export materials for colleagues, or import a shared knowledge-base ZIP.
 
 Default knowledge-base root:
 
@@ -30,11 +30,12 @@ _inbox/
 - Treat `legal-kb` as the main knowledge-base skill.
 - Preserve source traceability: every imported item should keep its origin, processing date, and raw/source relationship.
 - Search the local KB before adding or downloading new material.
-- Prefer the helper script for deterministic local file ingest, raw-to-source conversion, search, ZIP export, and ZIP import.
+- Prefer the helper script for deterministic local file or URL ingest, raw-to-source conversion, search, ZIP export, and ZIP import.
 - Deduplicate before importing shared packs.
 - Do not invent legal facts, missing citations, or source metadata.
 - For scanned or image-only PDFs, clearly report that OCR is required.
 - If Yuandian content is needed, load `yuandian-legal-search` as a companion skill and verify API configuration first.
+- For known URLs and WeChat public-account articles, use direct URL ingest first and Firecrawl only as the backup path.
 
 ## Helper
 
@@ -48,6 +49,10 @@ Common commands:
 
 ```bash
 python3 scripts/kb_ingest_helper.py ingest-file --path "/path/to/file.docx" --title "材料标题" --source-label "本地文件"
+```
+
+```bash
+python3 scripts/kb_ingest_helper.py ingest-url --url "https://mp.weixin.qq.com/s/..." --source-label "微信公众号"
 ```
 
 ```bash
@@ -76,6 +81,22 @@ Supported local ingest file types:
 - `.txt`
 - `.docx`
 - text-extractable `.pdf`
+
+## WeChat Article Ingest
+
+When the user asks to ingest a WeChat public-account article or another known webpage URL:
+
+1. Search the local KB first with the article title, URL, or key phrase to avoid duplicate ingest.
+2. Main path: run `ingest-url` and let the helper fetch the URL directly, clean the page text, and write paired `raw/notes/` and `wiki/sources/` files.
+3. Backup path: if direct fetch is blocked, too short, or returns a verification/WeChat shell page, use Firecrawl through the helper. Firecrawl requires `FIRECRAWL_API_KEY` or `FIRECRAWL_KEY` and the `firecrawl` CLI.
+4. If Firecrawl is not configured, clearly say the backup crawl path is not ready and ask the user to provide the article text, a saved HTML/Markdown file, or configure Firecrawl.
+5. After ingest, clean obvious public-account noise such as follow prompts, ads, author bios, read-more prompts, comments, and platform footer text.
+
+Use Firecrawl explicitly when needed:
+
+```bash
+python3 scripts/kb_ingest_helper.py ingest-url --url "https://mp.weixin.qq.com/s/..." --source-label "微信公众号" --prefer-firecrawl
+```
 
 ## Local Search
 

@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 import argparse
+import html
 import hashlib
 import json
+import os
 import re
 import shutil
+import subprocess
+import urllib.request
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -54,6 +58,88 @@ def sanitize_filename(name: str) -> str:
 
 def read_text_file(path: Path) -> str:
     return path.read_text(encoding='utf-8', errors='ignore')
+
+
+def html_to_text(markup: str) -> str:
+    markup = re.sub(r'(?is)<(script|style).*?>.*?</\1>', '\n', markup)
+    markup = re.sub(r'(?is)<br\s*/?>', '\n', markup)
+    markup = re.sub(r'(?is)</p\s*>', '\n\n', markup)
+    markup = re.sub(r'(?is)</h[1-6]\s*>', '\n\n', markup)
+    text = re.sub(r'(?is)<[^>]+>', ' ', markup)
+    text = html.unescape(text)
+    lines = [re.sub(r'\s+', ' ', line).strip() for line in text.splitlines()]
+    return '\n'.join(line for line in lines if line).strip()
+
+
+def title_from_html(markup: str, fallback: str) -> str:
+    for pattern in [
+        r'(?is)<meta\s+property=["\']og:title["\']\s+content=["\']([^"\']+)["\']',
+        r'(?is)<meta\s+content=["\']([^"\']+)["\']\s+property=["\']og:title["\']',
+        r'(?is)<title[^>]*>(.*?)</title>',
+    ]:
+        match = re.search(pattern, markup)
+        if match:
+            title = html.unescape(re.sub(r'\s+', ' ', match.group(1))).strip()
+            if title:
+                return title
+    return fallback
+
+
+def fetch_url_direct(url: str):
+    req = urllib.request.Request(
+        url,
+        headers={
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X) legal-kb-ingest/1.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,text/plain;q=0.8,*/*;q=0.7',
+        },
+    )
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        charset = resp.headers.get_content_charset() or 'utf-8'
+        raw = resp.read()
+    markup = raw.decode(charset, errors='ignore')
+    title = title_from_html(markup, url)
+    text = html_to_text(markup)
+    if len(text) < 300 or any(token in text for token in ['环境异常', '请在微信客户端打开', '访问过于频繁']):
+        raise RuntimeError('direct_fetch_too_short_or_blocked')
+    return {'title': title, 'body': text, 'method': 'direct'}
+
+
+def fetch_url_firecrawl(url: str):
+    if not (os.getenv('FIRECRAWL_API_KEY') or os.getenv('FIRECRAWL_KEY')):
+        raise RuntimeError('firecrawl_api_not_configured')
+    if not shutil.which('firecrawl'):
+        raise RuntimeError('firecrawl_cli_not_installed')
+    proc = subprocess.run(
+        ['firecrawl', 'scrape', url, '--only-main-content'],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=90,
+        check=False,
+    )
+    output = proc.stdout.strip()
+    if proc.returncode != 0 or len(output) < 300:
+        detail = proc.stderr.strip() or 'empty_or_short_firecrawl_output'
+        raise RuntimeError(f'firecrawl_failed: {detail}')
+    title = output.splitlines()[0].lstrip('# ').strip() if output.splitlines() else url
+    return {'title': title or url, 'body': output, 'method': 'firecrawl'}
+
+
+def fetch_url(url: str, prefer_firecrawl: bool = False):
+    if prefer_firecrawl:
+        return fetch_url_firecrawl(url)
+    try:
+        return fetch_url_direct(url)
+    except Exception as direct_error:
+        try:
+            result = fetch_url_firecrawl(url)
+            result['direct_error'] = str(direct_error)
+            return result
+        except Exception as firecrawl_error:
+            raise RuntimeError(
+                'url_ingest_failed: direct path failed and Firecrawl backup is unavailable or failed; '
+                f'direct={direct_error}; firecrawl={firecrawl_error}'
+            )
 
 
 def read_docx_file(path: Path) -> str:
@@ -494,6 +580,12 @@ def main():
     p_ingest.add_argument('--title', default='')
     p_ingest.add_argument('--source-label', default='本地文件')
 
+    p_ingest_url = sub.add_parser('ingest-url')
+    p_ingest_url.add_argument('--url', required=True)
+    p_ingest_url.add_argument('--title', default='')
+    p_ingest_url.add_argument('--source-label', default='网页/公众号')
+    p_ingest_url.add_argument('--prefer-firecrawl', action='store_true')
+
     p_export = sub.add_parser('export-zip')
     p_export.add_argument('--out-zip', required=True)
     p_export.add_argument('--files', nargs='+', required=True)
@@ -524,6 +616,20 @@ def main():
         text = file_text(path)
         title = args.title or path.stem
         result = write_raw_source(title=title, source_label=args.source_label, origin=str(path), body=text)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    elif args.cmd == 'ingest-url':
+        fetched = fetch_url(args.url, prefer_firecrawl=args.prefer_firecrawl)
+        title = args.title or fetched['title']
+        result = write_raw_source(
+            title=title,
+            source_label=args.source_label,
+            origin=args.url,
+            body=fetched['body'],
+            note=f"抓取方式：{fetched['method']}",
+        )
+        result['method'] = fetched['method']
+        if 'direct_error' in fetched:
+            result['direct_error'] = fetched['direct_error']
         print(json.dumps(result, ensure_ascii=False, indent=2))
     elif args.cmd == 'export-zip':
         result = export_zip(Path(args.out_zip).expanduser().resolve(), args.files, args.source_agent, args.notes)
