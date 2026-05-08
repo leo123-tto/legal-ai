@@ -6,8 +6,10 @@
 1. 用 `legal-kb` 作为唯一主技能处理本地法律知识库；
 2. 支持公众号链接、md、docx、可直抽文字 PDF 入库；
 3. 支持元典法规 / 案例 / 企业信息进入知识库；
-4. 支持共享 zip 导入导出与导入前查重；
-5. 文档设计成 agent 自己读、自己安装、自己验证、自己执行。
+4. 支持搜索本地知识库，避免重复入库和重复下载；
+5. 支持把已有 `raw` 整理成 `source`，并按 L0-L3 维护成熟度分级；
+6. 支持共享 zip 导入导出与导入前查重；
+7. 文档设计成 agent 自己读、自己安装、自己验证、自己执行。
 
 ---
 
@@ -78,6 +80,16 @@ bash verify.sh
 加载 legal-kb 技能，把这个 PDF 导入知识库；如果是可直抽文字 PDF 就直接入库，如果不是就明确告诉我需要 OCR 扩展链路。
 ```
 
+### 搜索本地知识库
+```text
+加载 legal-kb 技能，先搜索本地知识库里有没有“执行异议 首查封”的材料，并告诉我 raw 和 source 分别命中了哪些。
+```
+
+### raw 整理成 source
+```text
+加载 legal-kb 技能，把这个 raw 文件整理成 source，并说明目前是 L1/L2/L3 哪个等级，还缺什么才能到 L3。
+```
+
 ### 导出共享 zip
 ```text
 加载 legal-kb 技能，把这几个 raw 和 source 导出成共享压缩包给同事。
@@ -105,6 +117,20 @@ bash verify.sh
 `skills/legal/legal-kb/scripts/kb_ingest_helper.py`
 
 agent 在处理本地文件入库、共享 zip 导入导出时，应优先调用这个 helper，而不是现场临时拼命令。
+
+常用命令包括：
+- `search-kb`：搜索本地知识库
+- `raw-to-source`：把已有 raw 文件生成 source 框架
+- `audit-sources`：巡检 source 缺段、原文位置坏链、占位摘要和 raw 映射数
+- `ingest-file`：本地文件入库并生成 raw/source
+- `export-zip` / `import-zip`：共享包导入导出
+
+## legal-kb 详细规则
+`legal-kb` 主技能下面还带了三份参考文件，agent 会按任务需要读取：
+
+- `skills/legal/legal-kb/references/local-first.md`：本地优先检索、外部补检、gap-log
+- `skills/legal/legal-kb/references/ingest.md`：材料入库、清洗、source 模板、写库校验
+- `skills/legal/legal-kb/references/maintenance.md`：结构巡检、raw/source 映射、L2/L3 判断、批量治理
 
 ## 给人看的简明说明
 

@@ -2,8 +2,6 @@
 
 这是一个用于分享法律 AI 相关项目的仓库。
 
-它和 `legal-tools` 分开维护：`legal-tools` 是静态网页工具集合；这个仓库专门放 AI 工作流、本地知识库项目、agent 技能、提示词包、共享脚本，以及以后可以给同事下载使用的法律 AI 资料。
-
 ## 当前项目
 
 ### `legal-kb-yuandian-bundle`

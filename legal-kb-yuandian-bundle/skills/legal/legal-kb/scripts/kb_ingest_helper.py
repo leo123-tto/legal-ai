@@ -7,11 +7,19 @@ import shutil
 import zipfile
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 KB_ROOT = Path.home() / 'Documents' / '知识库'
 RAW_DIR = KB_ROOT / 'raw' / 'notes'
 SOURCE_DIR = KB_ROOT / 'wiki' / 'sources'
 YUANDIAN_CACHE_DIR = KB_ROOT / 'raw' / 'yuandian-cache'
+SEARCH_ROOTS = [
+    RAW_DIR,
+    SOURCE_DIR,
+    KB_ROOT / 'wiki' / 'topics',
+    KB_ROOT / 'wiki' / 'reports',
+    YUANDIAN_CACHE_DIR,
+]
 
 
 def ensure_kb_root():
@@ -135,6 +143,226 @@ def write_raw_source(title: str, source_label: str, origin: str, body: str, note
     ])
     source_path.write_text(source_content, encoding='utf-8')
     return {'raw_path': str(raw_path), 'source_path': str(source_path), 'title': title}
+
+
+def kb_relative(path: Path) -> str:
+    try:
+        return str(path.relative_to(KB_ROOT))
+    except ValueError:
+        return str(path)
+
+
+def text_snippet(text: str, terms: list[str], width: int = 120) -> str:
+    collapsed = re.sub(r'\s+', ' ', text).strip()
+    lower = collapsed.lower()
+    positions = [lower.find(term.lower()) for term in terms if term]
+    positions = [p for p in positions if p >= 0]
+    start = max(min(positions) - width // 2, 0) if positions else 0
+    end = min(start + width, len(collapsed))
+    return collapsed[start:end]
+
+
+def search_kb(query: str, roots: Optional[list[str]] = None, limit: int = 20):
+    ensure_kb_root()
+    terms = [t for t in re.split(r'\s+', query.strip()) if t]
+    if not terms:
+        raise RuntimeError('empty_query')
+    search_dirs = []
+    if roots:
+        for root in roots:
+            p = (KB_ROOT / root).expanduser()
+            if p.exists():
+                search_dirs.append(p)
+    else:
+        search_dirs = [p for p in SEARCH_ROOTS if p.exists()]
+    results = []
+    seen = set()
+    for root in search_dirs:
+        for path in root.rglob('*.md'):
+            resolved = str(path.resolve())
+            if resolved in seen:
+                continue
+            seen.add(resolved)
+            text = path.read_text(encoding='utf-8', errors='ignore')
+            lower = text.lower()
+            score = sum(lower.count(term.lower()) for term in terms)
+            if score <= 0:
+                continue
+            results.append({
+                'path': kb_relative(path),
+                'score': score,
+                'snippet': text_snippet(text, terms),
+            })
+    results.sort(key=lambda item: (-item['score'], item['path']))
+    return {'query': query, 'count': len(results), 'results': results[:limit]}
+
+
+def source_path_for_raw(raw_path: Path) -> Path:
+    name = raw_path.name
+    return SOURCE_DIR / name
+
+
+def extract_title_from_markdown(text: str, fallback: str) -> str:
+    for line in text.splitlines():
+        line = line.strip()
+        if line.startswith('# '):
+            return line[2:].strip() or fallback
+    return fallback
+
+
+def raw_to_source(raw_path: Path, level: str = 'L3', overwrite: bool = False):
+    ensure_kb_root()
+    raw_path = raw_path.expanduser().resolve()
+    if not raw_path.exists() or not raw_path.is_file():
+        raise RuntimeError(f'missing_raw_file: {raw_path}')
+    text = raw_path.read_text(encoding='utf-8', errors='ignore')
+    title = extract_title_from_markdown(text, raw_path.stem)
+    source_path = source_path_for_raw(raw_path)
+    existed = source_path.exists()
+    if existed and not overwrite:
+        return {
+            'status': 'skipped',
+            'reason': 'source_exists',
+            'raw_path': str(raw_path),
+            'source_path': str(source_path),
+        }
+    today = datetime.now().strftime('%Y-%m-%d')
+    source_content = '\n'.join([
+        f'# {title}',
+        '',
+        f'> 来源：raw整理 | 处理日期：{today} | 目标等级：{level} | 当前状态：结构化草稿',
+        '',
+        '## 核心内容',
+        '',
+        '### 结论摘要',
+        '',
+        '- 待整理：用 3-5 句话写清楚这份材料能解决什么问题。',
+        '',
+        '### 适用场景',
+        '',
+        '- 待整理：列出可以复用到哪些案件、咨询或检索任务。',
+        '',
+        '### 规则 / 裁判要点',
+        '',
+        '- 待整理：保留出处，不要改写成无法追溯的结论。',
+        '',
+        '### 事实与证据线索',
+        '',
+        '- 待整理：提炼对办案、检索、尽调有用的事实线索。',
+        '',
+        '### 使用限制',
+        '',
+        '- 待整理：说明地域、时间、效力、案由或数据来源限制。',
+        '',
+        '## 关键概念',
+        '',
+        '- [[待补主题]]',
+        '- [[待补规则]]',
+        '- [[待补案由]]',
+        '- [[待补程序]]',
+        '- [[待补风险点]]',
+        '',
+        '## 原文位置',
+        '',
+        f'`~/Documents/知识库/{kb_relative(raw_path)}`',
+        '',
+        '## 维护记录',
+        '',
+        f'- {today}：由 raw 生成 source 框架；当前仅为结构化草稿，需逐条读取 raw 后才能确认是否达到 L3。',
+        '',
+    ])
+    source_path.write_text(source_content, encoding='utf-8')
+    return {
+        'status': 'updated' if existed else 'created',
+        'raw_path': str(raw_path),
+        'source_path': str(source_path),
+        'level': level,
+    }
+
+
+def extract_raw_reference(text: str) -> Optional[str]:
+    if '## 原文位置' not in text:
+        return None
+    after = text.split('## 原文位置', 1)[1]
+    match = re.search(r'`([^`]+)`', after)
+    if match:
+        return match.group(1).strip()
+    for line in after.splitlines():
+        line = line.strip()
+        if line and not line.startswith('#'):
+            return line.strip('` ')
+    return None
+
+
+def expand_kb_path(path_text: str) -> Path:
+    if path_text.startswith('~/'):
+        return Path.home() / path_text[2:]
+    path = Path(path_text)
+    if path.is_absolute():
+        return path
+    return KB_ROOT / path
+
+
+def source_quality_level(text: str, raw_exists: bool) -> str:
+    has_core = '## 核心内容' in text
+    has_concepts = '## 关键概念' in text
+    has_raw = '## 原文位置' in text and raw_exists
+    placeholder = any(token in text for token in ['待整理', '待补', '本文讨论了', '相关法律问题'])
+    core_text = ''
+    if has_core:
+        core_text = text.split('## 核心内容', 1)[1].split('## ', 1)[0].strip()
+    concept_count = len(re.findall(r'\[\[[^\]]+\]\]', text))
+    if not has_core or not has_concepts or not has_raw:
+        return 'L1'
+    if placeholder or len(core_text) < 120 or concept_count < 5:
+        return 'L2'
+    return 'L3-candidate'
+
+
+def audit_sources(limit: int = 20):
+    ensure_kb_root()
+    issues = {
+        'missing_core': [],
+        'missing_concepts': [],
+        'missing_raw_section': [],
+        'bad_raw_path': [],
+        'placeholder_summary': [],
+    }
+    levels = {'L1': 0, 'L2': 0, 'L3-candidate': 0}
+    mapped_raw = set()
+    source_files = sorted(SOURCE_DIR.glob('*.md'))
+    for path in source_files:
+        text = path.read_text(encoding='utf-8', errors='ignore')
+        rel = kb_relative(path)
+        if '## 核心内容' not in text:
+            issues['missing_core'].append(rel)
+        if '## 关键概念' not in text:
+            issues['missing_concepts'].append(rel)
+        raw_ref = extract_raw_reference(text)
+        raw_exists = False
+        if not raw_ref:
+            issues['missing_raw_section'].append(rel)
+        else:
+            raw_path = expand_kb_path(raw_ref)
+            raw_exists = raw_path.exists()
+            if raw_exists:
+                mapped_raw.add(str(raw_path.resolve()))
+            else:
+                issues['bad_raw_path'].append({'source': rel, 'raw_ref': raw_ref})
+        if any(token in text for token in ['待整理', '待补', '本文讨论了', '相关法律问题']):
+            issues['placeholder_summary'].append(rel)
+        levels[source_quality_level(text, raw_exists)] += 1
+    raw_files = [p for p in RAW_DIR.glob('*.md') if p.is_file()]
+    summarized = {name: values[:limit] for name, values in issues.items()}
+    return {
+        'raw_notes': len(raw_files),
+        'sources': len(source_files),
+        'mapped_raw': len(mapped_raw),
+        'unmapped_raw_estimate': max(len(raw_files) - len(mapped_raw), 0),
+        'levels': levels,
+        'issue_counts': {name: len(values) for name, values in issues.items()},
+        'issue_samples': summarized,
+    }
 
 
 def sha256_file(path: Path) -> str:
@@ -276,6 +504,19 @@ def main():
     p_import.add_argument('--pack-zip', required=True)
     p_import.add_argument('--overwrite', action='store_true')
 
+    p_search = sub.add_parser('search-kb')
+    p_search.add_argument('--query', required=True)
+    p_search.add_argument('--roots', nargs='*', default=None)
+    p_search.add_argument('--limit', type=int, default=20)
+
+    p_raw_to_source = sub.add_parser('raw-to-source')
+    p_raw_to_source.add_argument('--raw-path', required=True)
+    p_raw_to_source.add_argument('--level', default='L3')
+    p_raw_to_source.add_argument('--overwrite', action='store_true')
+
+    p_audit = sub.add_parser('audit-sources')
+    p_audit.add_argument('--limit', type=int, default=20)
+
     args = parser.parse_args()
 
     if args.cmd == 'ingest-file':
@@ -289,6 +530,15 @@ def main():
         print(json.dumps(result, ensure_ascii=False, indent=2))
     elif args.cmd == 'import-zip':
         result = import_zip(Path(args.pack_zip).expanduser().resolve(), overwrite=args.overwrite)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    elif args.cmd == 'search-kb':
+        result = search_kb(args.query, roots=args.roots, limit=args.limit)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    elif args.cmd == 'raw-to-source':
+        result = raw_to_source(Path(args.raw_path), level=args.level, overwrite=args.overwrite)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    elif args.cmd == 'audit-sources':
+        result = audit_sources(limit=args.limit)
         print(json.dumps(result, ensure_ascii=False, indent=2))
 
 if __name__ == '__main__':

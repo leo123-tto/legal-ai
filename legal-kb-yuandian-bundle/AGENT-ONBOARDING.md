@@ -14,17 +14,26 @@
 5. 检查是否检测到：
    - 元典 API key
    - Firecrawl API（若打算启用公众号备用抓取）
-6. 最后反馈：
+6. 确认 `legal-kb` 已支持：
+   - 搜索本地知识库
+   - 将已有 raw 转成 source
+   - 巡检 source 页结构、原文位置和占位摘要
+   - 按 L0-L3 判断 source 页维护成熟度
+7. 最后反馈：
    - 安装是否成功
    - 当前环境是否为 Hermes
    - 已安装技能名
    - 元典 API 是否已就绪
    - Firecrawl 备用链路是否已就绪
-   - 现在如何用自然语言执行入库、导入、导出
+   - 现在如何用自然语言执行搜索、入库、raw 转 source、导入、导出
 
 ## 你必须明确反馈的结论
 - 默认知识库路径：`~/Documents/知识库`
 - 主技能：`legal-kb`
+- 本地搜索：用 `kb_ingest_helper.py search-kb`
+- raw 转 source：用 `kb_ingest_helper.py raw-to-source`
+- source 体检：用 `kb_ingest_helper.py audit-sources`
+- L3 标准：source 页必须具备摘要、适用场景、规则/案例要点、事实线索、限制、关联主题和维护记录
 - 若未检测到元典 key，必须明确说“元典功能暂未就绪，需要申请并配置 API”
 - 若未检测到 Firecrawl API，必须明确说“公众号备用抓取链路未就绪”
 - 团队共享能力已预埋：manifest + zip + export/import + helper
