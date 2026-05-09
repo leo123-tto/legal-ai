@@ -35,6 +35,11 @@ legal-kb-yuandian-bundle/HUMAN-GUIDE.md
 
 元典和 Firecrawl 功能需要使用者自行申请并配置 API。仓库里不包含任何密钥或凭据。
 
+注册链接：
+
+- 元典 API：https://open.chineselaw.com/
+- Firecrawl API Key：https://www.firecrawl.dev/app/api-keys
+
 可识别的环境变量包括：
 
 - `YUANDIAN_API_KEY`

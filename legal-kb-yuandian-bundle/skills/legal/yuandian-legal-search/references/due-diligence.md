@@ -4,7 +4,7 @@
 name: yuandian-due-diligence
 description: 元典增强版中国法律尽职调查技能。用于公司法律尽调项目初始化、底稿逐章撰写、完整性检查、尽调报告生成；对接 yuandian-legal-search / yuandian-api-reference 获取企业工商、诉讼、执行、知识产权等辅助数据。
 tags: [yuandian, due-diligence, legal, company, report, working-paper]
-related_skills: [yuandian-legal-search, yuandian-api-reference, md-to-pdf-macos]
+related_skills: [yuandian-legal-search, yuandian-api-reference]
 ---
 
 # 元典增强版法律尽职调查
@@ -24,7 +24,7 @@ related_skills: [yuandian-legal-search, yuandian-api-reference, md-to-pdf-macos]
 ## 总流程
 
 ```text
-init 初始化项目 → collect/yuandian 拉取辅助数据 → draft 逐章写底稿 → check 完整性检查 → report 生成报告 → pdf 可选转 PDF
+init 初始化项目 → collect/yuandian 拉取辅助数据 → draft 逐章写底稿 → check 完整性检查 → report 生成 Markdown 报告
 ```
 
 ## 模式一：init 初始化项目
@@ -172,10 +172,9 @@ python3 scripts/init_project.py \
 - 高风险写：`本所律师特别提请委托人关注：……`
 - 中风险写：`本所律师提示委托人注意：……`
 
-## 模式六：PDF 输出
+## 模式六：正式文件导出
 
-用户要求“生成 PDF / 发客户 / 正式版”时加载 `md-to-pdf-macos`，把报告 MD 转 PDF。  
-默认不要放桌面，除非用户明确要求；优先放项目 `report/` 目录。
+本通用包不内置 PDF / DOCX 导出流程，也不绑定任何特定排版工具。用户要求正式版时，先生成 Markdown 报告；如需 PDF / DOCX，由使用者在自己的环境中另行配置导出工具，并优先放项目 `report/` 目录。
 
 ## 支撑文件
 

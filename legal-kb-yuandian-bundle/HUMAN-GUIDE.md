@@ -139,11 +139,14 @@ agent 可以把指定的 raw / source 打包成共享 zip。
 ## 元典和 Firecrawl 要不要额外配置
 ### 元典
 要。没有 API，就用不了元典入库能力。
+注册入口：https://open.chineselaw.com/
 
 ### Firecrawl
 要。它只是公众号抓取失败后的备用方案，不是默认主链路。
 没配 API 的话，agent 应该明确告诉你：
 > 备用抓取链路未就绪。
+
+API Key 页面：https://www.firecrawl.dev/app/api-keys
 
 公众号备用抓取只需要考虑 Firecrawl。
 

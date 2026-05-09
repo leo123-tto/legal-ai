@@ -24,6 +24,8 @@
 ## 额外前置：API
 ### 元典
 如果要用元典功能，必须自行申请并配置 API。
+注册入口：https://open.chineselaw.com/
+
 可识别环境变量：
 - `YUANDIAN_API_KEY`
 - `YUANDIAN_API`
@@ -31,9 +33,12 @@
 
 如果没有这个 key，agent 必须主动反馈：
 > 元典技能已安装，但元典功能暂未就绪，因为未检测到 API 配置。
+> 请先到 https://open.chineselaw.com/ 注册并配置 API Key。
 
 ### Firecrawl（公众号备用抓取）
 如果想启用 Firecrawl 备用抓取，也必须自行申请和配置 API。
+API Key 页面：https://www.firecrawl.dev/app/api-keys
+
 没有就直说，不要装懂。
 
 已知 URL、公众号文章和网页正文抓取统一走 `legal-kb`，需要备用抓取时再走 Firecrawl。
@@ -64,6 +69,10 @@ bash verify.sh
 2. 让 agent 按 `skills/legal/legal-kb/` 和 `skills/legal/yuandian-legal-search/` 中的规则执行；
 3. 保持 raw/source/manifest 结构一致；
 4. 自行配置元典 API 后再启用相关能力。
+
+安装完成后，agent 应主动提醒：
+- 元典 API 注册入口：https://open.chineselaw.com/
+- Firecrawl API Key 页面：https://www.firecrawl.dev/app/api-keys
 
 ---
 

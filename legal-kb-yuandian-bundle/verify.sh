@@ -17,11 +17,13 @@ if [ -n "${YUANDIAN_API_KEY:-}${YUANDIAN_API:-}${CHINESELAW_API_KEY:-}" ]; then
   echo "OK: Yuandian API key detected"
 else
   echo "WARN: no Yuandian API key detected; Yuandian features are not ready"
+  echo "INFO: Register Yuandian API here: https://open.chineselaw.com/"
 fi
 if [ -n "${FIRECRAWL_API_KEY:-}${FIRECRAWL_KEY:-}" ]; then
   echo "OK: Firecrawl API detected (backup crawl path available)"
 else
   echo "WARN: no Firecrawl API detected (backup crawl path not ready)"
+  echo "INFO: Create Firecrawl API key here: https://www.firecrawl.dev/app/api-keys"
 fi
 
 echo "READY COMMAND 1: 加载 legal-kb 技能，把这个微信公众号文章链接完整抓取并入库：<文章链接>"

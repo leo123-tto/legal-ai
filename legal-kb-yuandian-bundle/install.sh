@@ -68,11 +68,13 @@ if [ -n "${YUANDIAN_API_KEY:-}${YUANDIAN_API:-}${CHINESELAW_API_KEY:-}" ]; then
   echo "OK: Yuandian API key detected."
 else
   echo "WARN: no Yuandian API key detected. Yuandian features are not ready."
+  echo "INFO: Register Yuandian API here: https://open.chineselaw.com/"
 fi
 if [ -n "${FIRECRAWL_API_KEY:-}${FIRECRAWL_KEY:-}" ]; then
   echo "OK: Firecrawl API detected. Backup crawl path is available."
 else
   echo "WARN: no Firecrawl API detected. Backup crawl path is not ready."
+  echo "INFO: Create Firecrawl API key here: https://www.firecrawl.dev/app/api-keys"
 fi
 printf "Next: bash verify.sh
 "

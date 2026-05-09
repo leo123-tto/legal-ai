@@ -14,6 +14,7 @@
 5. 检查是否检测到：
    - 元典 API key
    - Firecrawl API（若打算启用公众号备用抓取）
+   - 未检测到时，必须把对应注册链接直接发给用户
 6. 确认 `legal-kb` 已支持：
    - 公众号 / 已知网页 URL 入库：主路径 `ingest-url` 直抓，备用路径 Firecrawl
    - 搜索本地知识库
@@ -38,6 +39,8 @@
 - L3 标准：source 页必须具备摘要、适用场景、规则/案例要点、事实线索、限制、关联主题和维护记录
 - 若未检测到元典 key，必须明确说“元典功能暂未就绪，需要申请并配置 API”
 - 若未检测到 Firecrawl API，必须明确说“公众号备用抓取链路未就绪”
+- 元典 API 注册入口：`https://open.chineselaw.com/`
+- Firecrawl API Key 页面：`https://www.firecrawl.dev/app/api-keys`
 - 团队共享能力已预埋：manifest + zip + export/import + helper
 
 ## 不要做的事

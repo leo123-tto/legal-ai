@@ -1,7 +1,7 @@
 ---
 name: yuandian-legal-search
-description: 元典平台律师实战检索技能。查公司/查法规/查案例——先本地缓存，未命中再联网查，结果存本地，支持 MD 和 PDF 双格式输出。
-tags: [yuandian, legal-search, lawyer, company-check, regulation, case, pdf]
+description: 元典平台律师实战检索技能。查公司、查法规、查案例；先本地缓存，未命中再联网查，结果存本地并默认输出 Markdown。
+tags: [yuandian, legal-search, lawyer, company-check, regulation, case]
 ---
 
 # 元典律师检索技能
@@ -39,18 +39,6 @@ all_patents = yd_ref._fetch_all_pages(
 ```
 **注意：分页接口每页约 10 积分。** 快速体检只取第 1 页；尽调/财产线索需要完整清单时再自动翻页。
 
-### PDF 输出（引用 md-to-pdf-macos 技能）
-
-当用户要求"生成 PDF"或"转发给客户"时，加载 `md-to-pdf-macos` 技能，把 MD 报告转为 A4 排版正式中文 PDF：
-
-1. 用 SKILL.md 里规定的 CSS 模板写出完整 HTML
-2. `/tmp/pdf_venv/bin/python -c "from weasyprint import HTML; HTML('...html').write_pdf('...pdf')"`
-3. 清理中间文件，汇报 PDF 路径
-
-PDF 模板使用该技能规定的：STHeiti 字体、A4 边距 2cm/2.3cm、红边引用块、深色表头。
-
----
-
 ## 通用流程
 
 ### Step 1：检查本地缓存
@@ -62,7 +50,7 @@ PDF 模板使用该技能规定的：STHeiti 字体、A4 边距 2cm/2.3cm、红�
 ### Step 3：缓存 + 汇报
 - 写入本地缓存
 - 默认输出 MD 格式
-- 用户要求时输出 PDF 格式（引用 `md-to-pdf-macos`）
+- PDF / DOCX / 其他正式文件导出不属于本通用包内置能力；如用户需要，由使用者在自己的环境中另行配置导出工具。
 
 ---
 
@@ -348,18 +336,9 @@ out_invest = yd_ref.enterprise_out_invest(id=主体id)  # 或完整翻页
 - 同时输出到终端用于阅读
 - 适合自己查看、保存到知识库
 
-### PDF 格式（用户要求时输出）
+### 正式文件导出
 
-当用户说"生成 PDF" / "转成 PDF" / "发文件给别人" 时：
-
-1. 基于 MD 内容，按 `md-to-pdf-macos` 技能的 CSS 模板写完整 HTML
-2. 用 `/tmp/pdf_venv/bin/python` + weasyprint 渲染
-3. 输出到桌面 `元典报告_公司名_YYYY-MM-DD.pdf`
-4. 清理中间 HTML 文件
-5. 汇报：`PDF 已生成：~/Desktop/元典报告_XXX_2026-04-29.pdf`
-
-PDF 会去掉内部注释、内部标记（❌⚠️✅等符号保留），改用适合客户的正式语言。
-比如 "❌ 失信被执行人" → 在 PDF 中写"该企业已被列为失信被执行人"。
+本通用包不内置 PDF / DOCX 导出流程，也不绑定任何特定排版工具。用户如果需要正式文件，可以在本包生成的 Markdown 基础上自行配置导出工具。
 
 ---
 
@@ -371,9 +350,9 @@ PDF 会去掉内部注释、内部标记（❌⚠️✅等符号保留），改�
    - ⚠️ 中风险 / 需关注
    - ℹ️ 信息参考
    - ✅ 积极信号
-3. **PDF 格式**使用文字替代符号
+3. 对外正式文本应使用文字替代符号
 4. **注明来源**：如"数据来源：元典企业信息 2026-04-29"
-5. **问用户才展开**：汇报后问"需要调具体判决/法规全文/生成PDF吗？"
+5. **问用户才展开**：汇报后问"需要调具体判决/法规全文吗？"
 
 ---
 
@@ -407,7 +386,6 @@ PDF 会去掉内部注释、内部标记（❌⚠️✅等符号保留），改�
 | 查案例 | ay 参数 syntax error | 不用 ay，用 qw 替代 |
 | 查案例 | xzqh_p 报错 | 必须传 `["江苏"]` 不是 `"江苏"` |
 | 查详情 | code=500 程序处理异常 | 不重试，换路径 |
-| PDF 输出 | weasyprint 中文乱码 | 必须用 STHeiti 字体 |
 | 缓存 | 企业数据变化 | 企业类保持 30 天失效 |
 
 ---
@@ -416,4 +394,3 @@ PDF 会去掉内部注释、内部标记（❌⚠️✅等符号保留），改�
 
 - 查询结果自动缓存到 `~/Documents/知识库/raw/yuandian-cache/`
 - 如需正式入库到知识库主结构，调用 `legal-kb` 的 ingest 流程
-- 所生成的 PDF 集中放在桌面：`~/Desktop/元典报告_*.pdf`
