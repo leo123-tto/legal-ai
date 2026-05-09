@@ -41,7 +41,7 @@ echo "NOTE: 公众号备用抓取只使用 Firecrawl。"
 cat <<'EOF'
 
 INSTALL COMPLETE MESSAGE:
-安装完成。这个增强包是一个通用版基础技能，已经覆盖本地法律知识库、公众号/网页入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
+安装完成。这个增强包是一个通用版基础技能，已经覆盖本地法律知识库搭建、本地检索、公众号/网页入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
 
 如果您要使用元典功能，请先注册并配置元典 API Key：
 https://open.chineselaw.com/
