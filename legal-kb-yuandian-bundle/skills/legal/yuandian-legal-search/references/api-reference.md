@@ -1,15 +1,5 @@
-<!-- Archived from skill `yuandian-api-reference` during umbrella consolidation. Original path: generic-local-skill/yuandian-api-reference -->
-
----
-name: yuandian-api-reference
-description: 元典开放平台完整 API 接口说明书。覆盖法律法规、法条、案例、企业信息全部 30+ 接口的路径、参数、返回、已知坑。
-tags: [yuandian, api, legal, enterprise, reference]
----
-
 # 元典 API 接口说明书
 
-> 基于用户整理的原档 + 实战踩坑积累
-> 更新日期：2026-04-29
 > Base URL：`https://open.chineselaw.com/open`
 > 认证：`X-Api-Key` 请求头
 
@@ -152,9 +142,9 @@ total = _extract_total(data)   # → 总数
 
 ### 4. `case_vector_search(query=, rewrite_flag=True, xzqh_p=, xzqh_c=, cj=, fayuan=, wszl=, dianxing=, ja_start/end=, top_k=10)`
 **路径：** `POST /case_vector_search`
-按语义搜案例——适合"我知道问题，不知道案号/标题"。
+按语义搜案例——适合“知道问题，但不知道案号或标题”的场景。
 
-**实战建议：**
+**使用建议：**
 - 地域先卡 `xzqh_p=["江苏"]`
 - 普通案例卡近三年
 - 执行程序可以放低文书种类限制

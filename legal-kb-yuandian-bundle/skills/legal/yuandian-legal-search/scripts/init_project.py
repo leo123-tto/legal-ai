@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-法律尽职调查项目初始化脚本 v26.4.29.1545
+法律尽职调查项目初始化脚本
 
 用法:
     python3 init_project.py \
         --path /path/to/project \
         --target "目标公司全称" \
         --client "委托人名称" \
-        [--base-date 2026-03-20] \
+        [--base-date YYYY-MM-DD] \
         [--purpose "股权收购"] \
         [--law-firm "XX律师事务所"] \
         [--lawyers "张三,李四"] \
@@ -20,7 +20,7 @@
     4. 创建 report/ 与 raw/chineselaw/ 目录
     5. 初始化完成后提示使用 yuandian-legal-search 拉取工商数据
 
-注意：本脚本不再内置元典 API 调用，工商数据获取请使用独立 skill：
+注意：本脚本不内置元典 API 调用，工商数据获取请使用：
     <skill-install-dir>/yuandian-legal-search/scripts/yd_ref.py
 """
 
@@ -270,7 +270,7 @@ def main():
     print(f"\n📝 下一步：")
     print(f"   1. 按需使用 yuandian-legal-search 拉取目标公司工商数据：")
     if args.uscc:
-        print(f"      在 Hermes 中加载 yuandian-legal-search 后调用：")
+        print(f"      加载 yuandian-legal-search 后调用：")
         print(f"      yd_ref.get_enterprise_base_info(tyshxydm=\"{args.uscc}\")")
         print(f"      并将原始 JSON 保存到：{project_path}/raw/chineselaw/")
         print(f"      （以及 enterprise_brand、enterprise_patent、enterprise_writ_list 等，按章节需要拉取）")

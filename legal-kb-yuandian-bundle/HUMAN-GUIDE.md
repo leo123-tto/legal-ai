@@ -114,7 +114,7 @@ agent 可以把指定的 raw / source 打包成共享 zip。
 
 ## PDF 当前还缺什么
 
-这部分我直接说人话。
+这部分直接说清楚。
 
 ### 现在已经能做的
 - **可直抽文字的 PDF**：可以处理
@@ -142,7 +142,7 @@ agent 可以把指定的 raw / source 打包成共享 zip。
 注册入口：https://open.chineselaw.com/
 
 ### Firecrawl
-要。它只是公众号抓取失败后的备用方案，不是默认主链路。
+要。它只是公众号抓取失败后的备用方案，不是默认主链路；除 API Key 外，当前环境还需要能调用 `firecrawl` CLI。
 没配 API 的话，agent 应该明确告诉你：
 > 备用抓取链路未就绪。
 

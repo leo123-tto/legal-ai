@@ -1,6 +1,6 @@
 ---
 name: yuandian-legal-search
-description: 元典平台律师实战检索技能。查公司、查法规、查案例；先本地缓存，未命中再联网查，结果存本地并默认输出 Markdown。
+description: 元典平台律师检索技能。查公司、查法规、查案例；先本地缓存，未命中再联网查，结果存本地并默认输出 Markdown。
 tags: [yuandian, legal-search, lawyer, company-check, regulation, case]
 ---
 
@@ -9,9 +9,9 @@ tags: [yuandian, legal-search, lawyer, company-check, regulation, case]
 > 适用场景：查对方公司背景、查法规全文、查裁判案例、查执行财产线索、批量法规下载、公司法律尽调
 > 原则：先本地后联网，检索够用不调详情，汇报抓重点不堆原始数据
 
-本技能是元典相关任务的伞状入口。原 `yuandian-api-reference`、`yuandian-batch-download`、`yuandian-due-diligence` 已并入支撑资料：
+本技能是元典相关任务的统一入口。需要更细规则时，按任务读取对应支撑资料：
 
-- `references/api-reference.md`：完整接口路径、参数、返回结构、已知坑。
+- `references/api-reference.md`：接口路径、参数、返回结构、常见异常。
 - `references/batch-download.md`：清单式法规下载、精确名称匹配、效力级别过滤、质量筛选。
 - `references/due-diligence.md`：公司法律尽调初始化、底稿、完整性检查和报告生成。
 
@@ -158,7 +158,7 @@ data = yd_ref.search_ptal(
 
 ---
 
-## 场景四：执行财产线索调查（新增重点）
+## 场景四：执行财产线索调查
 
 ### 触发词
 "查财产线索" / "查应收款" / "看有没有钱" / "执行调查" / "查对方公司有什么资产"
@@ -287,7 +287,7 @@ out_invest = yd_ref.enterprise_out_invest(id=主体id)  # 或完整翻页
 → 诉 XXX 公司工程款纠纷，判决金额 200 万
 
 ❷ 在诉案件
-→ 近期开庭：2026-05-15，XXX 公司诉 XXX，合同纠纷，XXX法院
+→ 近期开庭：YYYY-MM-DD，XXX 公司诉 XXX，合同纠纷，XXX法院
 
 ❸ 对外投资与股权
 → 持有 XX 公司 60% 股权（注册资本 500 万）
@@ -301,13 +301,13 @@ out_invest = yd_ref.enterprise_out_invest(id=主体id)  # 或完整翻页
 
 ---
 
-## 企业尽调章节映射（吸收 yd-enterprise-info）
+## 企业尽调章节映射
 
 做完整公司尽调时，不要一股脑全调接口；按章节调，省积分也更像律师工作底稿。
 
 | 尽调章节 | 必调/建议接口 |
 |---|---|
-| 0 总览速查（新增） | `enterprise_aggregation_summary` — 一条接口18个维度，省积分；后续按需深挖具体章节 |
+| 0 总览速查 | `enterprise_aggregation_summary` — 一条接口18个维度，省积分；后续按需深挖具体章节 |
 | 1 主体资格 | `get_enterprise_base_info`、`enterprise_change_info`；建议 `enterprise_abnormal_operation`、`enterprise_serious_illegal` |
 | 2 股权结构 | `get_enterprise_base_info`、`enterprise_pledge`、`enterprise_frozen_equity` |
 | 3 治理组织 | `get_enterprise_base_info`（核心成员、分支机构） |
@@ -322,7 +322,7 @@ out_invest = yd_ref.enterprise_out_invest(id=主体id)  # 或完整翻页
 ### 底稿引用规范
 1. API 数据**不列入“已获取材料清单”**，它是辅助核验数据，不是目标公司提交材料。
 2. 在调查发现段首注明：`经查阅元典开放平台「接口名」接口（调用时间 YYYY-MM-DD HH:MM，原始数据见 缓存/文件名）……`
-3. 元典数据与公司提供材料不一致时，按中/高风险提示；不要为了“好看”抹掉冲突。
+3. 元典数据与公司提供材料不一致时，按中/高风险提示；不得为了结论整齐而抹掉冲突。
 4. 调用失败要留痕：接口、时间、原因、是否改用其他路径。
 
 ---
@@ -351,7 +351,7 @@ out_invest = yd_ref.enterprise_out_invest(id=主体id)  # 或完整翻页
    - ℹ️ 信息参考
    - ✅ 积极信号
 3. 对外正式文本应使用文字替代符号
-4. **注明来源**：如"数据来源：元典企业信息 2026-04-29"
+4. **注明来源**：如"数据来源：元典企业信息，调用日期 YYYY-MM-DD"
 5. **问用户才展开**：汇报后问"需要调具体判决/法规全文吗？"
 
 ---

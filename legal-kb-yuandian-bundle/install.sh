@@ -70,8 +70,11 @@ else
   echo "WARN: no Yuandian API key detected. Yuandian features are not ready."
   echo "INFO: Register Yuandian API here: https://open.chineselaw.com/"
 fi
-if [ -n "${FIRECRAWL_API_KEY:-}${FIRECRAWL_KEY:-}" ]; then
-  echo "OK: Firecrawl API detected. Backup crawl path is available."
+if [ -n "${FIRECRAWL_API_KEY:-}${FIRECRAWL_KEY:-}" ] && command -v firecrawl >/dev/null 2>&1; then
+  echo "OK: Firecrawl API and CLI detected. Backup crawl path is available."
+elif [ -n "${FIRECRAWL_API_KEY:-}${FIRECRAWL_KEY:-}" ]; then
+  echo "WARN: Firecrawl API key detected, but firecrawl CLI is not installed. Backup crawl path is not ready."
+  echo "INFO: Create Firecrawl API key here: https://www.firecrawl.dev/app/api-keys"
 else
   echo "WARN: no Firecrawl API detected. Backup crawl path is not ready."
   echo "INFO: Create Firecrawl API key here: https://www.firecrawl.dev/app/api-keys"

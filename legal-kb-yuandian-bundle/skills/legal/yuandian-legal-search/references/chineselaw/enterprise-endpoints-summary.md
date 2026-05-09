@@ -1,13 +1,12 @@
-# 企业信息接口速查（legal-due-diligence 视角）
+# 企业信息接口速查
 
-> 完整接口文档及 CLI 用法见：[yuandian-legal-search skill](https://github.com/malnlda/yuandian-legal-search)
-> 本文件仅作为 draft 阶段快速参考，供 LLM 知晓 raw/ 下各 JSON 文件的内容。
+> 本文件作为尽调和企业检索任务的快速参考，帮助 agent 判断各企业信息接口适合支撑哪些章节。
 
 ---
 
 ## 各子命令与 JSON 文件对应关系
 
-| JSON 文件前缀 | 子命令 | 含义 | DD 章节 |
+| JSON 文件前缀 | 接口函数 | 含义 | 尽调章节 |
 |---|---|---|---|
 | `search-company_*` | search-company | 企业检索候选列表 | init |
 | `get_enterprise_base_info_*` | get_enterprise_base_info | 基本信息+股东+核心成员+分支机构 | 1, 2, 3 |

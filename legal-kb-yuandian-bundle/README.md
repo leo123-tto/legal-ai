@@ -36,7 +36,7 @@
 > 请先到 https://open.chineselaw.com/ 注册并配置 API Key。
 
 ### Firecrawl（公众号备用抓取）
-如果想启用 Firecrawl 备用抓取，也必须自行申请和配置 API。
+如果想启用 Firecrawl 备用抓取，必须自行申请 API，并让当前环境可以调用 `firecrawl` CLI。
 API Key 页面：https://www.firecrawl.dev/app/api-keys
 
 没有就直说，不要装懂。
@@ -73,6 +73,17 @@ bash verify.sh
 安装完成后，agent 应主动提醒：
 - 元典 API 注册入口：https://open.chineselaw.com/
 - Firecrawl API Key 页面：https://www.firecrawl.dev/app/api-keys
+- Firecrawl 备用抓取还需要当前环境可调用 `firecrawl` CLI
+
+安装完成后，也建议 agent 向用户说明：
+
+> 这个增强包是一个通用版基础技能，已经覆盖本地法律知识库、公众号/网页入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
+>
+> 如果您要使用元典功能，请先注册并配置元典 API Key：https://open.chineselaw.com/
+>
+> 如果您要启用公众号或网页抓取失败后的备用抓取链路，请注册 Firecrawl API Key，并确保当前环境可以调用 `firecrawl` CLI：https://www.firecrawl.dev/app/api-keys
+>
+> 后续使用过程中，如果您有更多需求，可以让您的 AI 在此基础上继续添加、改造和整理，逐步做成更符合您个人工作习惯的版本。AI 时代，建议您多使用自己的 AI，亲自感受它在知识整理、检索、入库和工作流自动化中的力量。祝您使用愉快。
 
 ---
 
