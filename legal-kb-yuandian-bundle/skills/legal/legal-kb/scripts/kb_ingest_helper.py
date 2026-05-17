@@ -169,7 +169,7 @@ def read_pdf_file(path: Path) -> str:
                 return text
     except Exception:
         pass
-    raise RuntimeError('pdf_text_extract_failed: needs OCR or a PDF text extractor backend')
+    raise RuntimeError('pdf_text_extract_failed: cannot extract text from this PDF; try using ocr-mineru (MinerU online OCR: mineru-open-api extract file.pdf -o ./out/ --model vlm)')
 
 
 def file_text(path: Path) -> str:

@@ -16,7 +16,7 @@
 ### 2. 把微信公众号文章入库
 输入公众号文章链接，agent 会尝试抓正文、清洗噪音、写入 raw 和 source。
 
-默认先直接抓取网页正文；如果被微信拦截、正文过短或抓到验证页，再用 Firecrawl 作为备用路径。
+默认用浏览器直接提取正文（不需要任何 API Key）；如果被微信拦截或提取失败，再用 Firecrawl 作为备用路径。
 
 ### 3. 搜索本地知识库
 你可以先让 agent 查本地有没有相关内容，避免重复入库、重复下载。
@@ -30,6 +30,11 @@ agent 可以扫描 source 页有没有缺段、原文路径坏链、占位摘要
 - 纯文本 (`.txt`)
 - Word (`.docx`)
 - **可直接抽取文字的 PDF**
+- **扫描版 PDF**（通过 MinerU 在线 OCR 解析）
+- **图片/截图**（png/jpg/webp 等，通过 MinerU 在线 OCR 识别）
+- **图片型 PDF**（通过 MinerU 在线 OCR 逐页解析）
+
+前提：已安装 `npm install -g mineru-open-api` 并配置 MinerU Token。
 
 ### 6. 把 raw 整理成 source
 `raw` 是原始材料，`source` 是可复用知识页。agent 可以把已有 raw 生成 source，并继续整理到 L3。
@@ -118,43 +123,43 @@ agent 会优先用浏览器直接提取正文（不需要任何 API Key）；如
 
 ---
 
-## PDF 当前还缺什么
+## PDF 现在能做什么
 
-这部分直接说清楚。
+### 可直抽文字的 PDF
+直接提取文字、清洗后入库。
 
-### 现在已经能做的
-- **可直抽文字的 PDF**：可以处理
-
-### 现在还不稳 / 还不默认支持的
-- 扫描版 PDF
-- 图片型 PDF
-- 文字提取后严重破碎的 PDF
-
-### 为什么
-因为这类 PDF 实际上已经不是“文本提取”问题，而是 **OCR 问题**。
-目前这个包没有把 OCR 运行时和整套 OCR 流程强绑进去。
+### 扫描版 PDF / 图片型 PDF
+通过 MinerU 在线 OCR 解析后入库。
+- 安装：`npm install -g mineru-open-api`
+- Token 申请：https://mineru.net/apiManage/token
+- 调用：`mineru-open-api extract file.pdf -o ./out/ --model vlm`
+- 如果 Token 无效或额度用完，agent 会根据 `ocr-mineru` 技能中的错误码表告诉你具体原因和解决办法
 
 ### 这意味着什么
-如果你给 agent 一个扫描版 PDF，正确结果应该是：
-> 它明确告诉你，这个 PDF 需要 OCR 扩展链路。
+你不需要手动做 OCR 或提前转换 PDF。扫描版 PDF、图片型 PDF、甚至单独的图片/截图，都可以直接交给 agent 处理。它会调用 MinerU 在线服务完成解析，清洗后入库。
 
-而不是瞎提取一堆垃圾文本再硬塞进知识库。
-
+如果没有配置 MinerU Token，agent 应该明确告诉你需要申请 Token（https://mineru.net/apiManage/token），或临时使用 `flash-extract` 免 Token 模式（≤10MB/20 页，IP 限频）。
 ---
 
-## 元典和 Firecrawl 要不要额外配置
-### 元典
+## 哪些 API 需要额外配置
+
+### 元典（法规/案例/企业信息检索）
 要。没有 API，就用不了元典入库能力。
 注册入口：https://open.chineselaw.com/
 
-### Firecrawl
-要。它只是公众号抓取失败后的备用方案，不是默认主链路；除 API Key 外，当前环境还需要能调用 `firecrawl` CLI。
+### MinerU（扫描 PDF/图片/Word/PPT/Excel 在线 OCR 解析）
+要。如果要解析扫描版 PDF 或图片，需要申请 MinerU Token。
+申请入口：https://mineru.net/apiManage/token
+安装 CLI：`npm install -g mineru-open-api`
+
+### Firecrawl（公众号/网页备用抓取）
+可选。它只是公众号抓取失败后的备用方案，不是默认主链路。
+公众号入库默认用浏览器直接提取正文（不需要任何 API Key）。
+除 API Key 外，当前环境还需要能调用 `firecrawl` CLI。
 没配 API 的话，agent 应该明确告诉你：
 > 备用抓取链路未就绪。
 
 API Key 页面：https://www.firecrawl.dev/app/api-keys
-
-公众号备用抓取只需要考虑 Firecrawl。
 
 ---
 

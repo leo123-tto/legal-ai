@@ -36,12 +36,14 @@ description: 单主库法律材料入库：先清洗，再整理，再写入 `~/
 4. PDF：先尝试本包 helper 的可直抽文字 PDF 入库；如不可直抽，再判断当前环境是否有 OCR 能力
    - 先判断是否可可靠直抽文本
    - 能稳定直抽就先直抽
-   - 不可靠或混合型 PDF 需要 OCR；如果当前环境没有 OCR 能力，明确说明“需要 OCR 扩展链路”
+   - 不可靠或混合型 PDF 需要 OCR；加载 `ocr-mineru` 技能，用 MinerU 在线 OCR 解析
    - 长 PDF 默认按页或小批次处理；只有当前环境支持并行 agent 且用户允许时，才拆分给并行 agent
    - 不假设同事机器已安装特定 OCR 技能或运行时
 5. Word / docx：提取正文，去页眉页脚和样式噪音
-6. 网页 / 公众号：优先用 `kb_ingest_helper.py ingest-url` 直抓；直抓失败、正文过短或遇到微信验证页时，再用 Firecrawl 备用路径；最后删除关注引导、广告、作者简介、阅读原文、平台页脚
-7. 图片 / 截图：需要 OCR；如果当前环境有 OCR 能力则先 OCR 后清洗，如果没有则明确提示需要 OCR 扩展链路
+6. 网页 / 公众号：优先用浏览器直接提取正文（`document.querySelector('#js_content')?.innerText`），不需要任何 API Key；直抓失败、正文过短或遇到微信验证页时，再用 Firecrawl 备用路径；最后删除关注引导、广告、作者简介、阅读原文、平台页脚
+7. 图片 / 截图：加载 `ocr-mineru` 技能，用 MinerU 在线 OCR 识别：
+   `mineru-open-api extract image.png -o ./ocr-out/ --model vlm`
+   读取输出 Markdown，清洗后入库。如果 MinerU 返回错误，根据错误码表告知用户具体原因和解决办法
 8. 零碎文本 / 实务碎片：先判断以后会不会复用，再决定是否入库
 9. 企业信息 / API 结果：保留查询时间、来源和关键信息
 
@@ -77,8 +79,9 @@ description: 单主库法律材料入库：先清洗，再整理，再写入 `~/
 - 整理结构后入库
 
 ### 3. 网页 / 公众号
-- 主路径：`kb_ingest_helper.py ingest-url --url <链接>`
-- 备用路径：直抓失败时通过 `--prefer-firecrawl` 或自动 fallback 使用 Firecrawl
+- 主路径：浏览器直接提取 `document.querySelector('#js_content')?.innerText`（不需要 API Key）
+- 备用路径：直抓失败时通过 `kb_ingest_helper.py ingest-url --url <链接>`
+- Firecrawl 兜底：备用路径仍失败时通过 `--prefer-firecrawl` 使用 Firecrawl（需 API Key）
 - Firecrawl 未配置时，要求用户提供正文、HTML/Markdown 文件，或先配置 Firecrawl
 - 删除头尾垃圾
 - 判断保留全文还是改写实务摘要
