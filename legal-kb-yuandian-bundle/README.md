@@ -4,7 +4,7 @@
 
 目标很明确：
 1. 用 `legal-kb` 作为唯一主技能处理本地法律知识库；
-2. 支持公众号链接、md、docx、可直抽文字 PDF 入库；
+2. 支持公众号链接、md、docx、可直抽文字 PDF、扫描版 PDF、图片入库；
 3. 支持元典法规 / 案例 / 企业信息进入知识库；
 4. 支持搜索本地知识库，避免重复入库和重复下载；
 5. 支持把已有 `raw` 整理成 `source`，并按 L0-L3 维护成熟度分级；
@@ -14,8 +14,9 @@
 ---
 
 ## 包含的技能
-- `legal-kb`
-- `yuandian-legal-search`
+- `legal-kb`：本地知识库主技能，支持公众号文章入库、文件入库（含扫描 PDF 和图片的 OCR 解析）
+- `yuandian-legal-search`：元典法规、案例、企业信息检索与入库支持
+- `ocr-mineru`：MinerU 在线文档解析，支持 PDF、图片、Word、PPT、Excel 转 Markdown
 
 不再单独依赖任何 wechat 技能。公众号入库能力已经并入 `legal-kb`。
 
@@ -35,13 +36,21 @@
 > 元典技能已安装，但元典功能暂未就绪，因为未检测到 API 配置。
 > 请先到 https://open.chineselaw.com/ 注册并配置 API Key。
 
+### MinerU（在线文档 OCR 解析）
+如果要解析扫描版 PDF、图片型 PDF、或图片/截图，必须自行申请 MinerU Token。
+申请入口：https://mineru.net/apiManage/token
+安装 CLI：`npm install -g mineru-open-api`
+配置环境变量：`MINERU_TOKEN` 或运行 `mineru-open-api auth`
+
+没有 Token 时，只能使用 `flash-extract` 免 Token 模式（≤10MB/20 页，IP 限频）。
+
 ### Firecrawl（公众号备用抓取）
 如果想启用 Firecrawl 备用抓取，必须自行申请 API，并让当前环境可以调用 `firecrawl` CLI。
 API Key 页面：https://www.firecrawl.dev/app/api-keys
 
 没有就直说，不要装懂。
 
-已知 URL、公众号文章和网页正文抓取统一走 `legal-kb`，需要备用抓取时再走 Firecrawl。
+已知 URL、公众号文章和网页正文抓取统一走 `legal-kb`，公众号首选浏览器直抽（不需要 API Key），需要备用抓取时再走 Firecrawl。
 
 ---
 
@@ -77,9 +86,11 @@ bash verify.sh
 
 安装完成后，也建议 agent 向用户说明：
 
-> 这个增强包是一个通用版基础技能，已经覆盖本地法律知识库搭建、本地检索、公众号/网页入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
+> 这个增强包是一个通用版基础技能，已经覆盖本地法律知识库搭建、本地检索、公众号/网页入库、扫描 PDF/图片 OCR 解析入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
 >
 > 如果您要使用元典功能，请先注册并配置元典 API Key：https://open.chineselaw.com/
+>
+> 如果您要解析扫描版 PDF 或图片，请申请 MinerU Token：https://mineru.net/apiManage/token（并安装 `npm install -g mineru-open-api`）
 >
 > 如果您要启用公众号或网页抓取失败后的备用抓取链路，请注册 Firecrawl API Key，并确保当前环境可以调用 `firecrawl` CLI：https://www.firecrawl.dev/app/api-keys
 >
@@ -101,12 +112,17 @@ bash verify.sh
 ```
 
 ```text
-加载 legal-kb 技能，把这个 PDF 导入知识库；如果是可直抽文字 PDF 就直接入库，如果不是就明确告诉我需要 OCR 扩展链路。
+加载 legal-kb 技能，把这个 PDF 导入知识库；如果是可直抽文字 PDF 就直接入库，如果是扫描版就通过 MinerU 在线 OCR 解析后入库。
 ```
 
 ### 搜索本地知识库
 ```text
 加载 legal-kb 技能，先搜索本地知识库里有没有“执行异议 首查封”的材料，并告诉我 raw 和 source 分别命中了哪些。
+```
+
+### 入库图片/截图
+```text
+加载 legal-kb 技能，把这张图片通过 MinerU 在线 OCR 识别后整理入库。
 ```
 
 ### raw 整理成 source
@@ -143,7 +159,7 @@ bash verify.sh
 agent 在处理本地文件入库、共享 zip 导入导出时，应优先调用这个 helper，而不是现场临时拼命令。
 
 常用命令包括：
-- `ingest-url`：公众号文章或已知网页 URL 入库；主路径直抓，备用路径 Firecrawl
+- `ingest-url`：公众号文章或已知网页 URL 入库；主路径浏览器直抽，备用路径 Firecrawl
 - `search-kb`：搜索本地知识库
 - `raw-to-source`：把已有 raw 文件生成 source 框架
 - `audit-sources`：巡检 source 缺段、原文位置坏链、占位摘要和 raw 映射数

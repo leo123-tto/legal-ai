@@ -16,7 +16,8 @@
    - Firecrawl API 与 `firecrawl` CLI（若打算启用公众号备用抓取）
    - 未检测到时，必须把对应注册链接直接发给用户
 6. 确认 `legal-kb` 已支持：
-   - 公众号 / 已知网页 URL 入库：主路径 `ingest-url` 直抓，备用路径 Firecrawl
+   - 公众号 / 已知网页 URL 入库：主路径浏览器直抽 `#js_content`，备用路径 Firecrawl
+   - 扫描版 PDF / 图片入库：通过 `ocr-mineru`（MinerU 在线 OCR）解析后入库
    - 搜索本地知识库
    - 将已有 raw 转成 source
    - 巡检 source 页结构、原文位置和占位摘要
@@ -33,7 +34,7 @@
 ## 你必须明确反馈的结论
 - 默认知识库路径：`~/Documents/知识库`
 - 主技能：`legal-kb`
-- 公众号链接入库：先用 `kb_ingest_helper.py ingest-url`，直抓失败再用 Firecrawl 备用路径
+- 公众号链接入库：优先浏览器直抽 `#js_content`（不需要 API Key），失败再用 Firecrawl 备用路径
 - 本地搜索：用 `kb_ingest_helper.py search-kb`
 - raw 转 source：用 `kb_ingest_helper.py raw-to-source`
 - source 体检：用 `kb_ingest_helper.py audit-sources`
@@ -46,10 +47,14 @@
 
 ## 安装完成后必须转述给用户的话
 
-安装完成。这个增强包是一个通用版基础技能，已经覆盖本地法律知识库搭建、本地检索、公众号/网页入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
+安装完成。这个增强包是一个通用版基础技能，已经覆盖本地法律知识库搭建、本地检索、公众号/网页入库、扫描 PDF/图片 OCR 解析入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
 
 如果您要使用元典功能，请先注册并配置元典 API Key：
 https://open.chineselaw.com/
+
+如果您要解析扫描版 PDF 或图片，请申请 MinerU Token：
+https://mineru.net/apiManage/token
+（并安装 `npm install -g mineru-open-api`）
 
 如果您要启用公众号或网页抓取失败后的备用抓取链路，请注册 Firecrawl API Key，并确保当前环境可以调用 firecrawl CLI：
 https://www.firecrawl.dev/app/api-keys
@@ -62,3 +67,4 @@ https://www.firecrawl.dev/app/api-keys
 - 不要寻找额外的微信文章入库技能，公众号入库已经由 `legal-kb` 处理
 - 不要把 Firecrawl 当默认全文方案
 - 不要把这个包说成只能 Hermes 用
+- 不要在没 Token 的情况下假装能解析扫描版 PDF，应明确告知需要 MinerU Token
