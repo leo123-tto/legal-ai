@@ -1,6 +1,6 @@
 ---
 name: legal-kb
-description: Build, search, maintain, import, export, and deduplicate a local Chinese legal knowledge base under ~/Documents/知识库; ingest WeChat public-account article URLs, webpages, markdown, text, Word, and text-extractable PDF files; create raw/source pairs; turn existing raw notes into source pages; maintain source pages to L3 reusable quality; and exchange knowledge-base fragments through manifest-based ZIP packs.
+description: Build, search, maintain, import, export, and deduplicate a local Chinese legal knowledge base under ~/Documents/知识库; ingest WeChat public-account article URLs, webpages, markdown, text, Word, PDF (text-extractable and scanned via OCR), and images; create raw/source pairs; turn existing raw notes into source pages; maintain source pages to L3 reusable quality; and exchange knowledge-base fragments through manifest-based ZIP packs.
 ---
 
 # Legal KB
@@ -33,9 +33,9 @@ _inbox/
 - Prefer the helper script for deterministic local file or URL ingest, raw-to-source conversion, search, ZIP export, and ZIP import.
 - Deduplicate before importing shared packs.
 - Do not invent legal facts, missing citations, or source metadata.
-- For scanned or image-only PDFs, clearly report that OCR is required.
+- For scanned or image-only PDFs, and for images/screenshots: load `ocr-mineru` to parse them via MinerU online OCR, then clean and ingest the result.
 - If Yuandian content is needed, load `yuandian-legal-search` as a companion skill and verify API configuration first.
-- For known URLs and WeChat public-account articles, use direct URL ingest first and Firecrawl only as the backup path.
+- For known URLs and WeChat public-account articles, use browser extraction first, then direct URL ingest, and Firecrawl only as the backup path.
 
 ## Helper
 
@@ -81,15 +81,23 @@ Supported local ingest file types:
 - `.txt`
 - `.docx`
 - text-extractable `.pdf`
+- scanned/image-based `.pdf` (requires `ocr-mineru` skill — MinerU online OCR)
+- images (`.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`) — requires `ocr-mineru`
+- `.doc`, `.ppt`, `.pptx`, `.xls`, `.xlsx` — requires `ocr-mineru`
 
 ## WeChat Article Ingest
 
 When the user asks to ingest a WeChat public-account article or another known webpage URL:
 
 1. Search the local KB first with the article title, URL, or key phrase to avoid duplicate ingest.
-2. Main path: run `ingest-url` and let the helper fetch the URL directly, clean the page text, and write paired `raw/notes/` and `wiki/sources/` files.
-3. Backup path: if direct fetch is blocked, too short, or returns a verification/WeChat shell page, use Firecrawl through the helper. Firecrawl requires `FIRECRAWL_API_KEY` or `FIRECRAWL_KEY` and the `firecrawl` CLI.
-4. If Firecrawl is not configured, clearly say the backup crawl path is not ready and ask the user to provide the article text, a saved HTML/Markdown file, or configure Firecrawl.
+2. **Primary path (no API key needed):** open the page in a browser and extract the article body directly:
+   - Navigate to the URL.
+   - Extract the article body via `document.querySelector('#js_content')?.innerText || ''`.
+   - Extract metadata: title (`document.title` or `#activity-name`), publish time (`#publish_time`), account name (`#js_name`).
+   - Clean noise: remove follow prompts, ads, author bios, read-more prompts, comments, platform footer.
+   - Write paired `raw/notes/` and `wiki/sources/` files.
+3. **Backup path:** if the browser approach fails (page blocked, redirected, or `#js_content` is empty/missing), run `ingest-url` through the helper to fetch directly.
+4. **Firecrawl fallback:** if direct fetch is blocked, too short, or returns a verification page, use Firecrawl. Requires `FIRECRAWL_API_KEY` or `FIRECRAWL_KEY` and the `firecrawl` CLI. If not configured, tell the user the backup path is not ready and ask for the article text or a saved file.
 5. After ingest, clean obvious public-account noise such as follow prompts, ads, author bios, read-more prompts, comments, and platform footer text.
 
 Use Firecrawl explicitly when needed:
@@ -97,6 +105,12 @@ Use Firecrawl explicitly when needed:
 ```bash
 python3 scripts/kb_ingest_helper.py ingest-url --url "https://mp.weixin.qq.com/s/..." --source-label "微信公众号" --prefer-firecrawl
 ```
+
+**Browser extraction reference:**
+- Body: `document.querySelector('#js_content')?.innerText || ''`
+- Title: `document.querySelector('#activity-name')?.innerText || document.title || ''`
+- Publish time: `document.querySelector('#publish_time')?.innerText || ''`
+- Account name: `document.querySelector('#js_name')?.innerText || ''`
 
 ## Local Search
 
@@ -166,6 +180,23 @@ Common fake-source signals:
 For case source pages, L3 requires at least: case type, case number or "案号：未知", court if available, cause of action, basic facts, core issue, holding/rule, result, and practical use. Do not fabricate missing metadata.
 
 For statute/rule source pages, L3 requires at least: current validity if known, issuing body, effective date or revision date if available, key articles or rule points, application scenario, and limits.
+
+## OCR for Scanned PDFs and Images
+
+When the input is a scanned PDF, image-based PDF, or a screenshot/photo that cannot be directly text-extracted:
+
+1. Load the `ocr-mineru` skill.
+2. Use MinerU online OCR to parse the file:
+   ```bash
+   mineru-open-api extract file.pdf -o ./ocr-out/ --model vlm
+   ```
+   For images: `mineru-open-api extract image.png -o ./ocr-out/ --model vlm`
+3. Read the generated Markdown output from the output directory.
+4. Clean the OCR result: fix obvious recognition errors, merge broken lines, remove table artifacts.
+5. Ingest the cleaned text into the KB as usual (write `raw/notes/` and optionally `wiki/sources/`).
+6. If MinerU returns an error (quota exceeded, token invalid, service unavailable), report the specific error and suggest: re-apply for a Token at https://mineru.net/apiManage/token, or wait for the daily quota to reset.
+
+**Note:** `ocr-mineru` requires `npm install -g mineru-open-api` and a valid MinerU API Token (apply at https://mineru.net/apiManage/token). Without a Token, only the `flash-extract` mode works (limited to ≤10MB/20 pages, IP rate-limited).
 
 ## Maintenance Checks
 

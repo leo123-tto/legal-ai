@@ -56,6 +56,7 @@ agent 可以把指定的 raw / source 打包成共享 zip。
 ```text
 加载 legal-kb 技能，把这个微信公众号文章链接完整抓取并入库：<文章链接>
 ```
+agent 会优先用浏览器直接提取正文（不需要任何 API Key）；如果失败，再尝试 Firecrawl 备用路径。
 
 ### 入库 Word 文档
 ```text
@@ -77,9 +78,14 @@ agent 可以把指定的 raw / source 打包成共享 zip。
 加载 legal-kb 技能，把这个 raw 文件整理成 source，并维护到 L3 标准；如果暂时达不到 L3，就告诉我缺什么。
 ```
 
-### 入库 PDF
+### 入库 PDF（包括扫描版）
 ```text
-加载 legal-kb 技能，把这个 PDF 导入知识库；如果是可直抽文字 PDF 就直接入库，如果不是就明确告诉我需要 OCR 扩展链路。
+加载 legal-kb 技能，把这个 PDF 导入知识库；如果是可直抽文字 PDF 就直接入库，如果是扫描版就通过 MinerU 在线 OCR 解析后入库。
+```
+
+### 入库图片/截图
+```text
+加载 legal-kb 技能，把这张图片通过 MinerU 在线 OCR 识别后整理入库。
 ```
 
 ### 导出给同事

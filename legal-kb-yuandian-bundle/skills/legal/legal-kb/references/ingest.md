@@ -66,9 +66,13 @@ description: 单主库法律材料入库：先清洗，再整理，再写入 `~/
 - 写入 `raw/notes/`
 
 ### 2. PDF
-- 优先用 helper 处理可直抽文字 PDF
-- 先判断可靠直抽还是页级 OCR
-- 混合型 PDF 按页处理，不整本一刀切
+- **可直抽文字的 PDF**：优先用 helper 处理，直抽后清洗入库
+- **扫描版/图片型 PDF**：加载 `ocr-mineru` 技能，用 MinerU 在线 OCR 解析
+  ```bash
+  mineru-open-api extract file.pdf -o ./ocr-out/ --model vlm
+  ```
+  读取输出目录中的 Markdown，清洗后入库
+- 混合型 PDF：先判断哪些页可直抽、哪些需要 OCR，按页处理，不整本一刀切
 - 长 PDF 默认逐页 / 小批次处理；并行 agent 只是可选加速手段，不是必需能力
 - 整理结构后入库
 
@@ -80,8 +84,12 @@ description: 单主库法律材料入库：先清洗，再整理，再写入 `~/
 - 判断保留全文还是改写实务摘要
 
 ### 4. 图片 / 截图
-- 需要 OCR；不假设默认安装 OCR 技能或模型
-- OCR 后必须清洗整理，不能原样入库
+- 加载 `ocr-mineru` 技能，用 MinerU 在线 OCR 识别：
+  ```bash
+  mineru-open-api extract image.png -o ./ocr-out/ --model vlm
+  ```
+- 读取输出目录中的 Markdown，清洗整理后入库，不能原样入库
+- 如果 MinerU 返回错误（额度用完、Token 无效等），根据错误码查 `ocr-mineru` 技能中的错误码表，告知用户具体原因和解决办法
 
 ### 5. 零碎文本 / 实务碎片
 - 会复用才入库
