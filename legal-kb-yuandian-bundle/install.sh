@@ -11,6 +11,15 @@ for skill in legal-kb yuandian-legal-search; do
   cp -R "$SRC_DIR/skills/legal/$skill" "$DEST_ROOT/"
 done
 
+# Copy ocr-mineru (OCR online service, sits at same level as legal/)
+rm -rf "$DEST_ROOT/../ocr-mineru"
+if [ -d "$SRC_DIR/skills/ocr-mineru" ]; then
+  cp -R "$SRC_DIR/skills/ocr-mineru" "$DEST_ROOT/../"
+  echo "Installed ocr-mineru skill (online OCR: PDF/images via MinerU)."
+else
+  echo "WARN: ocr-mineru skill not found. Scanned PDF and image ingest will not be available."
+fi
+
 mkdir -p   "$KB_ROOT/raw/notes"   "$KB_ROOT/raw/images"   "$KB_ROOT/raw/yuandian-cache"   "$KB_ROOT/wiki/sources"   "$KB_ROOT/wiki/topics"   "$KB_ROOT/wiki/reports"   "$KB_ROOT/_inbox"
 
 write_if_missing() {
@@ -69,6 +78,17 @@ if [ -n "${YUANDIAN_API_KEY:-}${YUANDIAN_API:-}${CHINESELAW_API_KEY:-}" ]; then
 else
   echo "WARN: no Yuandian API key detected. Yuandian features are not ready."
   echo "INFO: Register Yuandian API here: https://open.chineselaw.com/"
+fi
+if [ -n "${MINERU_TOKEN:-}" ]; then
+  echo "OK: MinerU Token detected. Online OCR is ready."
+elif command -v mineru-open-api >/dev/null 2>&1; then
+  echo "WARN: mineru-open-api CLI found but MINERU_TOKEN not set. Only flash-extract mode available (<=10MB/20 pages, IP rate-limited)."
+  echo "INFO: Get a Token at https://mineru.net/apiManage/token"
+  echo "INFO: Set it with: export MINERU_TOKEN='your-token' or run: mineru-open-api auth"
+else
+  echo "WARN: mineru-open-api not installed. Online OCR is not ready."
+  echo "INFO: Install with: npm install -g mineru-open-api"
+  echo "INFO: Get a Token at https://mineru.net/apiManage/token"
 fi
 if [ -n "${FIRECRAWL_API_KEY:-}${FIRECRAWL_KEY:-}" ] && command -v firecrawl >/dev/null 2>&1; then
   echo "OK: Firecrawl API and CLI detected. Backup crawl path is available."

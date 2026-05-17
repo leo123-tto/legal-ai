@@ -5,6 +5,13 @@ KB_ROOT="$HOME/Documents/知识库"
 for skill in legal-kb yuandian-legal-search; do
   [ -d "$HOME/.hermes/skills/legal/$skill" ]
 done
+if [ -d "$HOME/.hermes/skills/ocr-mineru" ]; then
+  echo "OK: ocr-mineru skill found (online OCR ready)"
+elif command -v mineru-open-api >/dev/null 2>&1; then
+  echo "WARN: mineru-open-api CLI found but skill not installed"
+else
+  echo "WARN: ocr-mineru skill not found; scanned PDF and image ingest will not be available"
+fi
 [ -d "$KB_ROOT/raw/notes" ]
 [ -d "$KB_ROOT/raw/yuandian-cache" ]
 [ -d "$KB_ROOT/wiki/sources" ]
@@ -19,6 +26,15 @@ else
   echo "WARN: no Yuandian API key detected; Yuandian features are not ready"
   echo "INFO: Register Yuandian API here: https://open.chineselaw.com/"
 fi
+if [ -n "${MINERU_TOKEN:-}" ]; then
+  echo "OK: MinerU Token detected. Online OCR is ready."
+elif command -v mineru-open-api >/dev/null 2>&1; then
+  echo "WARN: mineru-open-api CLI found but MINERU_TOKEN not set. Only flash-extract mode available."
+  echo "INFO: Get a Token at https://mineru.net/apiManage/token"
+else
+  echo "WARN: MinerU online OCR is not ready (no Token, CLI not installed)."
+  echo "INFO: npm install -g mineru-open-api && get Token at https://mineru.net/apiManage/token"
+fi
 if [ -n "${FIRECRAWL_API_KEY:-}${FIRECRAWL_KEY:-}" ] && command -v firecrawl >/dev/null 2>&1; then
   echo "OK: Firecrawl API and CLI detected (backup crawl path available)"
 elif [ -n "${FIRECRAWL_API_KEY:-}${FIRECRAWL_KEY:-}" ]; then
@@ -29,22 +45,28 @@ else
   echo "INFO: Create Firecrawl API key here: https://www.firecrawl.dev/app/api-keys"
 fi
 
-echo "READY COMMAND 1: 加载 legal-kb 技能，把这个微信公众号文章链接完整抓取并入库：<文章链接>"
+echo "READY COMMAND 1: 加载 legal-kb 技能，把这个微信公众号文章链接完整抓取并入库：<文章链接>（agent 会优先用浏览器提取正文，不需要 API Key）"
 echo "READY COMMAND 2: 加载 legal-kb 技能，把这个 Word 文档整理进本地知识库，并生成 raw 和 source。"
+echo "READY COMMAND 2a: 加载 legal-kb 技能，把这个扫描版 PDF 通过 MinerU 在线 OCR 解析后入库。"
+echo "READY COMMAND 2b: 加载 legal-kb 技能，把这张图片通过 MinerU 在线 OCR 识别后整理入库。"
 echo "READY COMMAND 3: 加载 legal-kb 技能，先搜索本地知识库里有没有“执行异议 首查封”的材料。"
 echo "READY COMMAND 4: 加载 legal-kb 技能，体检一下 source 层，告诉我缺段、坏链、占位摘要和未映射 raw 的情况。"
 echo "READY COMMAND 5: 加载 legal-kb 技能，把这个 raw 文件整理成 source，并说明是否达到 L3。"
 echo "READY COMMAND 6: 加载 legal-kb 技能，把这个共享 zip 导入知识库，先查重，再告诉我导入了多少、跳过了多少。"
 echo "READY COMMAND 7: 加载 legal-kb 技能和 yuandian-legal-search 技能，帮我从元典获取《公司法》全文并入库到本地知识库。"
-echo "NOTE: 公众号备用抓取只使用 Firecrawl。"
+echo "NOTE: 公众号入库默认用浏览器提取正文（不需要 API Key），失败时再用 Firecrawl 备用路径。"
 
 cat <<'EOF'
 
 INSTALL COMPLETE MESSAGE:
-安装完成。这个增强包是一个通用版基础技能，已经覆盖本地法律知识库搭建、本地检索、公众号/网页入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
+安装完成。这个增强包是一个通用版基础技能，已经覆盖本地法律知识库搭建、本地检索、公众号/网页入库、扫描 PDF/图片 OCR 解析入库、raw/source 整理、L3 维护、共享导入导出，以及元典检索入库等核心流程。
 
 如果您要使用元典功能，请先注册并配置元典 API Key：
 https://open.chineselaw.com/
+
+如果您要解析扫描版 PDF 或图片，请申请 MinerU Token：
+https://mineru.net/apiManage/token
+（并安装 `npm install -g mineru-open-api`）
 
 如果您要启用公众号或网页抓取失败后的备用抓取链路，请注册 Firecrawl API Key，并确保当前环境可以调用 firecrawl CLI：
 https://www.firecrawl.dev/app/api-keys
