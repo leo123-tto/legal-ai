@@ -155,6 +155,8 @@ legal-ai/
 │   │   ├── new_skill_proposal.md
 │   │   └── config.yml
 │   └── PULL_REQUEST_TEMPLATE.md
+├── docs/
+│   └── API-SETUP.md                     ← 三个 API 的权威配置文档
 └── legal-kb-yuandian-bundle/            ← v1.0.0 主项目
     ├── README.md                        ← 包入口
     ├── HUMAN-GUIDE.md                   ← 给同事看

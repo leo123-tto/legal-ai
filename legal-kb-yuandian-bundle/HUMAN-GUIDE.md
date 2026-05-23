@@ -143,6 +143,8 @@ agent 会优先用浏览器直接提取正文（不需要任何 API Key）；如
 
 ## 哪些 API 需要额外配置
 
+这一节只讲"要不要配 / 点哪个链接"。**详细配置步骤、CLI 安装、免 Token 模式、故障排查**见 [`../docs/API-SETUP.md`](../docs/API-SETUP.md)（仓库根目录下的 `docs/API-SETUP.md`）。
+
 ### 元典（法规/案例/企业信息检索）
 要。没有 API，就用不了元典入库能力。
 注册入口：https://open.chineselaw.com/

@@ -43,6 +43,8 @@
 - 若未检测到 Firecrawl API 或 `firecrawl` CLI，必须明确说“公众号备用抓取链路未就绪”
 - 元典 API 注册入口：`https://open.chineselaw.com/`
 - Firecrawl API Key 页面：`https://www.firecrawl.dev/app/api-keys`
+- MinerU Token 申请入口：`https://mineru.net/apiManage/token`（CLI：`npm install -g mineru-open-api`）
+- API 配置细节、环境变量优先级、免 Token 模式和故障排查的权威说明：`docs/API-SETUP.md`（在反馈给用户时，可把这个路径告诉用户作为深读入口）
 - 团队共享能力已预埋：manifest + zip + export/import + helper
 
 ## 安装完成后必须转述给用户的话
@@ -58,6 +60,8 @@ https://mineru.net/apiManage/token
 
 如果您要启用公众号或网页抓取失败后的备用抓取链路，请注册 Firecrawl API Key，并确保当前环境可以调用 firecrawl CLI：
 https://www.firecrawl.dev/app/api-keys
+
+三个 API 的详细配置、CLI 安装、环境变量优先级、免 Token 模式与故障排查，请见仓库根目录下的 `docs/API-SETUP.md`。
 
 这个版本的目标是让核心功能先跑通。后续使用过程中，如果您有更多需求，可以让您的 AI 在此基础上继续添加、改造和整理，逐步做成更符合您个人工作习惯的版本。AI 时代，建议您多使用自己的 AI，亲自感受它在知识整理、检索、入库和工作流自动化中的力量。
 

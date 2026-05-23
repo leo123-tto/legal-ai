@@ -78,6 +78,8 @@ bash verify.sh
 - `MINERU_TOKEN` — MinerU（CLI：`npm install -g mineru-open-api`）
 - `FIRECRAWL_API_KEY` / `FIRECRAWL_KEY` — Firecrawl
 
+详细配置、CLI 安装和故障排查见 [`docs/API-SETUP.md`](./docs/API-SETUP.md)。
+
 ## 仓库结构
 
 ```text

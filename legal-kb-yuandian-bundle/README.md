@@ -23,14 +23,14 @@
 ---
 
 ## 额外前置：API
+
+> 完整注册流程、CLI 安装、环境变量优先级、免 Token 模式与故障排查见 [`docs/API-SETUP.md`](../docs/API-SETUP.md)。
+> 下面只列各 API 的基础口径和「未就绪时 agent 必须怎么反馈」。
+
 ### 元典
 如果要用元典功能，必须自行申请并配置 API。
 注册入口：https://open.chineselaw.com/
-
-可识别环境变量：
-- `YUANDIAN_API_KEY`
-- `YUANDIAN_API`
-- `CHINESELAW_API_KEY`
+环境变量（任一即可）：`YUANDIAN_API_KEY` / `YUANDIAN_API` / `CHINESELAW_API_KEY`
 
 如果没有这个 key，agent 必须主动反馈：
 > 元典技能已安装，但元典功能暂未就绪，因为未检测到 API 配置。
@@ -40,13 +40,12 @@
 如果要解析扫描版 PDF、图片型 PDF、或图片/截图，必须自行申请 MinerU Token。
 申请入口：https://mineru.net/apiManage/token
 安装 CLI：`npm install -g mineru-open-api`
-配置环境变量：`MINERU_TOKEN` 或运行 `mineru-open-api auth`
-
-没有 Token 时，只能使用 `flash-extract` 免 Token 模式（≤10MB/20 页，IP 限频）。
+环境变量：`MINERU_TOKEN`
 
 ### Firecrawl（公众号备用抓取）
 如果想启用 Firecrawl 备用抓取，必须自行申请 API，并让当前环境可以调用 `firecrawl` CLI。
 API Key 页面：https://www.firecrawl.dev/app/api-keys
+环境变量：`FIRECRAWL_API_KEY` / `FIRECRAWL_KEY`
 
 没有就直说，不要装懂。
 
@@ -93,6 +92,8 @@ bash verify.sh
 > 如果您要解析扫描版 PDF 或图片，请申请 MinerU Token：https://mineru.net/apiManage/token（并安装 `npm install -g mineru-open-api`）
 >
 > 如果您要启用公众号或网页抓取失败后的备用抓取链路，请注册 Firecrawl API Key，并确保当前环境可以调用 `firecrawl` CLI：https://www.firecrawl.dev/app/api-keys
+>
+> 三个 API 的详细配置、CLI 安装、环境变量优先级、免 Token 模式和故障排查，请见 `docs/API-SETUP.md`。
 >
 > 后续使用过程中，如果您有更多需求，可以让您的 AI 在此基础上继续添加、改造和整理，逐步做成更符合您个人工作习惯的版本。AI 时代，建议您多使用自己的 AI，亲自感受它在知识整理、检索、入库和工作流自动化中的力量。祝您使用愉快。
 
